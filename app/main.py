@@ -45,6 +45,8 @@ class Ship:
             row: int,
             column: int
     ) -> bool:
+        if self.get_deck(row, column) is None:
+            raise Exception("Error while shooting at the ship!")
         self.get_deck(row, column).is_alive = False
         for deck in self.decks:
             if deck.is_alive:
@@ -68,29 +70,28 @@ class Battleship:
             self,
             location: tuple
     ) -> str:
-        if (self.field.get(location)
-                and self.field[location].fire(location[0], location[1])):
-            return "Sunk!"
-        elif (self.field.get(location)
-              and self.field[location].fire(location[0], location[1])
-              is False):
-            return "Hit!"
+        if self.field.get(location):
+            ship_status = self.field[location].fire(location[0], location[1])
         else:
             return "Miss!"
 
+        if ship_status:
+            return "Sunk!"
+        else:
+            return "Hit!"
+
     def print_field(self) -> None:
         for row in range(10):
-            print("\n")
             for column in range(10):
                 if self.field.get((row, column)):
                     if self.field.get((row, column)).is_drowned:
-                        print("x", end="   ")
+                        print("x", end=" ")
                     else:
                         if self.field.get(
                                 (row, column)
                         ).get_deck(row, column).is_alive:
-                            print(u"\u25A1", end="   ")
+                            print(u"\u25A1", end=" ")
                         else:
-                            print("*", end="   ")
+                            print("*", end=" ")
                 else:
-                    print("~", end="   ")
+                    print("~", end=" ")
