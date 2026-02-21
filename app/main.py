@@ -45,11 +45,12 @@ class Ship:
             row: int,
             column: int
     ) -> bool:
-        if self.get_deck(row, column) is None:
+        deck = self.get_deck(row, column)
+        if deck is None:
             raise Exception("Error while shooting at the ship!")
-        self.get_deck(row, column).is_alive = False
-        for deck in self.decks:
-            if deck.is_alive:
+        deck.is_alive = False
+        for decks in self.decks:
+            if decks.is_alive:
                 return False
         self.is_drowned = True
         return True
@@ -62,14 +63,26 @@ class Battleship:
     ) -> None:
         self.field = {}
         for item_ship in ships:
+            if ((item_ship[0][0] not in range(0, 10)
+                or item_ship[0][1] not in range(0, 10))
+                    or item_ship[1][0] not in range(0, 10)
+                    or item_ship[1][1] not in range(0, 10)):
+                raise ValueError("Location of ship is incorrect!")
             ship = Ship(item_ship[0], item_ship[1])
             for cell in ship.decks:
+                if self.field.get((cell.row, cell.column)):
+                    raise ValueError(
+                        f"Cell {(cell.row, cell.column)} is already used!"
+                    )
                 self.field[(cell.row, cell.column)] = ship
 
     def fire(
             self,
             location: tuple
     ) -> str:
+        if location[0] not in range(0, 10) or location[1] not in range(0, 10):
+            raise ValueError("Location is incorrect!")
+
         if self.field.get(location):
             ship_status = self.field[location].fire(location[0], location[1])
         else:
@@ -95,3 +108,4 @@ class Battleship:
                             print("*", end=" ")
                 else:
                     print("~", end=" ")
+            print("")
